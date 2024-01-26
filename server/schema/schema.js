@@ -22,9 +22,9 @@ const {
 // ];
 
 // var authors = [
-//     {id: "1", name: "Hari", age: 36},
-//     {id: "2", name: "Ram", age: 42},
-//     {id: "3", name: "krish", age: 54},
+//     {id: "1", name: "Shiva", age: 40},
+//     {id: "2", name: "Hari", age: 32},
+//     {id: "3", name: "krish", age: 52},
 // ]
 
 const BookType = new GraphQLObjectType({
@@ -37,6 +37,7 @@ const BookType = new GraphQLObjectType({
             type: AuthorType,
             resolve(parentValue, args){
                 //return _.find(authors, {id: parentValue.authorId});
+                return Author.findById(parentValue.authorId);
             }
         }
     })
@@ -52,6 +53,7 @@ const AuthorType = new GraphQLObjectType({
               type: new GraphQLList(BookType),
               resolve(parentValue, args){
                 //return _.filter(books, {authorId: parentValue.id});
+                return Book.find({authorId: parentValue.id});
               }
         }
     })
@@ -66,6 +68,7 @@ const RootQuery = new GraphQLObjectType({
             resolve(parentValue, args){
                 // code to get data from db/ other source
                 //return _.find(books, {id: args.id});
+                return Book.findById(args.id);
             }
         },
         author: {
@@ -73,18 +76,21 @@ const RootQuery = new GraphQLObjectType({
             args: {id: {type: GraphQLID}},
             resolve(parentValue, args){
                 //return _.find(authors, {id: args.id});
+                return Author.findById(args.id);
             }
         },
         books: {
             type: new GraphQLList(BookType),
             resolve(parentValue, args){
                 //return books;
+                return Book.find({});
             }
         },
         authors: {
             type: new GraphQLList(AuthorType),
             resolve(parentValue, args){
                 //return authors;
+                return Author.find({});
             }
         }
     }
@@ -112,12 +118,12 @@ const Mutation = new GraphQLObjectType({
             args: {
                 name: {type: GraphQLString},
                 genre: {type: GraphQLString},
-                authorId: {type: GraphQLString}
+                authorId: {type: GraphQLID}
             },
             resolve(parentValue, args){
                 let book = new Book({
                     name: args.name,
-                    age: args.age,
+                    genre: args.genre,
                     authorId: args.authorId
                 });
                 return book.save();
